@@ -1,4 +1,4 @@
-import pythoncom, pyHook, win32api, win32con
+import pythoncom, pyHook, win32api
 import math
 from time import sleep
 
@@ -37,15 +37,16 @@ def OnKeyboardEvent(event):
 def OnMouseEvent(event):
     # called when mouse events are received
         if event.MessageName == "mouse left down":
-                move_circle()
+			move_circle()
+			hm.UnhookMouse()
+			hm.HookKeyboard()
         return True
 
 
-mhm = pyHook.HookManager()
-mhm.MouseAll = OnMouseEvent
-mhm.KeyDown  = OnKeyboardEvent
+hm = pyHook.HookManager()
+hm.MouseAll = OnMouseEvent
+hm.KeyDown  = OnKeyboardEvent
 
-mhm.HookMouse()
-mhm.HookKeyboard()
+hm.HookMouse()
 
 pythoncom.PumpMessages()
