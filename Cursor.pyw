@@ -12,7 +12,7 @@ n_intervals = 50
 l_intervals = []
 for i in range(0, n_intervals):
         l_intervals.append((i+1) * math.pi * 2 / n_intervals)
-
+# Move the cursor in a circle
 def move_circle():
         (x, y) = win32api.GetCursorPos()
         old_pos = (x, y)
@@ -37,16 +37,16 @@ def OnKeyboardEvent(event):
 def OnMouseEvent(event):
     # called when mouse events are received
         if event.MessageName == "mouse left down":
-			move_circle()
-			hm.UnhookMouse()
-			hm.HookKeyboard()
+			move_circle() # move the cursor
+			hm.UnhookMouse() # unhook the mouse
+			hm.HookKeyboard() # hook the keyboard
         return True
 
 
 hm = pyHook.HookManager()
 hm.MouseAll = OnMouseEvent
 hm.KeyDown  = OnKeyboardEvent
-
+# Hook the mouse
 hm.HookMouse()
-
+# Wait for any events
 pythoncom.PumpMessages()
