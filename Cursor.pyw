@@ -1,80 +1,51 @@
-import pythoncom, pyHook, win32api, win32con, ctypes, sys
+import pythoncom, pyHook, win32api, win32con
+import math
 from time import sleep
 
-def moveRight():	
-	for x in range(0, 20):
-		
-		win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 10,0)
-		sleep(.08)
-				
-def moveLeft():	
-	for x in range(0, 20):
-		
-		win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, -10,0)
-		sleep(.08)			
-def moveDown():	
-	for x in range(0, 20):
-		
-		win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 0,10)
-		sleep(.08)
-def moveUp():	
-	for x in range(0, 20):
-		
-		win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 0,-10)
-		sleep(.08)
-		
-def move1():
-	moveRight()
-	moveDown()
-	moveLeft()
-	moveUp()
-	move2()
+# Radius is 250px
+radius = 50
 
-def move2():		
-	def OnKeyboardEvent(event):
-		if event.Key == "Media_Play_Pause":
-			sys.exit()
-		else:
-			moveRight()
-			moveDown()
-			moveLeft()
-			moveUp()
+# Intervals in the circle
+n_intervals = 50
 
-		#turn True to pass the event to other handlers
-		return True
+# List of intervals
+l_intervals = []
+for i in range(0, n_intervals):
+        l_intervals.append((i+1) * math.pi * 2 / n_intervals)
 
-	#print ctrl	
-	khm = pyHook.HookManager()
-	# watch for all mouse events
-	khm.KeyDown = OnKeyboardEvent
-	# set the hook
-	khm.HookKeyboard()
-	pythoncom.PumpMessages()
-	
-	
+def move_circle():
+        (x, y) = win32api.GetCursorPos()
+        old_pos = (x, y)
+        center = (x-radius, y)
+        for i in l_intervals:
+                p = (radius * math.cos(i), radius * math.sin(i))
+                new_pos = (int(center[0]+p[0]), int(center[1]-p[1]))
+                win32api.SetCursorPos(new_pos)
+                sleep(0.01)
+
+
+def OnKeyboardEvent(event):
+    if event.Key == "Media_Play_Pause":
+        exit()
+    else:
+        move_circle()
+
+    # return True to pass the event to other handlers
+    return True
+    
+    
 def OnMouseEvent(event):
     # called when mouse events are received
-	if event.MessageName == "mouse left down":
-		sleep(1)
-		ctypes.windll.user32.PostQuitMessage(0)
-		move1()
-		# create a hook manager
-# return True to pass the event to other handlers
-	return True
+        if event.MessageName == "mouse left down":
+                move_circle()
+        return True
 
 
-# create a hook manager
 mhm = pyHook.HookManager()
-# watch for all mouse events
 mhm.MouseAll = OnMouseEvent
-# set the hook
+mhm.KeyDown  = OnKeyboardEvent
+
 mhm.HookMouse()
-# wait forever
+mhm.HookKeyboard()
+
 pythoncom.PumpMessages()
-
-
-# def click(x,y):
-	# win32api.SetCursorPos((x,y))
-	# win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN,x,y,0,0)
-	# win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP,x,y,0,0)
-# click(600,300)
