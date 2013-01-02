@@ -37,6 +37,7 @@ def OnKeyboardEvent(event):
 def OnMouseEvent(event):
     # called when mouse events are received
         if event.MessageName == "mouse left down":
+			sleep(.3) #So that mouse is not depressed when moved
 			move_circle() # move the cursor
 			hm.UnhookMouse() # unhook the mouse
 			hm.HookKeyboard() # hook the keyboard
