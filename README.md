@@ -2,9 +2,6 @@ This is a python script to move the cursor in a circle when the mouse is clicked
 
 The string on line 28 determines the key that terminates the script. Currently it is the Play/Pause button found on some keyboards. This may or may not work on each keyboard that has one. The script may also be terminated by ending the pythonw.exe process from the Task Manager. 
 
-The script stops collecting key presses after 6 presses. The cause of this bug is currently unknown. At that point the script can be ended by ending the pythonw.exe process from the Task Manager.
-
-
 Place in the startup folder of a friends computer (of course don't do anything illegal or anything that may get them mad at you) and have some fun!
 
 Thanks doomrobo.
