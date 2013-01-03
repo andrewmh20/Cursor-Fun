@@ -1,5 +1,6 @@
-import pythoncom, pyHook, win32api
+import pythoncom, pyHook, win32api, sys
 import math
+import threading, time
 from time import sleep
 
 # Radius is 250px
@@ -18,30 +19,49 @@ def move_circle():
         old_pos = (x, y)
         center = (x-radius, y)
         for i in l_intervals:
-                p = (radius * math.cos(i), radius * math.sin(i))
-                new_pos = (int(center[0]+p[0]), int(center[1]-p[1]))
-                win32api.SetCursorPos(new_pos)
-                sleep(0.01)
+            p = (radius * math.cos(i), radius * math.sin(i))
+            new_pos = (int(center[0]+p[0]), int(center[1]-p[1]))
+            win32api.SetCursorPos(new_pos)
+            sleep(0.01)
+
+#attempt to stop pyHook hang...				
+lock = threading.Lock()
+def KeyEventThread1(i):
+    lock.acquire()
+    sys.exit()
+    lock.release()
+def KeyEventThread2(i):
+    lock.acquire()
+    move_circle()
+    lock.release()
 
 
+			
 def OnKeyboardEvent(event):
-    if event.Key == "Media_Play_Pause":
-        exit()
-    else:
-        move_circle()
-
+	if event.Key == "Media_Play_Pause":
+		t = threading.Thread(target=KeyEventThread1, args=(1,))
+		t.start()
+		sys.exit()
+	else:
+		t = threading.Thread(target=KeyEventThread2, args=(1,))
+		t.start()
     # return True to pass the event to other handlers
-    return True
+	return True
     
-    
+def MouseEventThread(i):
+	lock.acquire()
+	sleep(.2) #So that mouse is not depressed when moved
+	move_circle() # move the cursor
+	hm.UnhookMouse() # unhook the mouse
+	lock.release()  
+	
 def OnMouseEvent(event):
     # called when mouse events are received
-        if event.MessageName == "mouse left down":
-			sleep(.3) #So that mouse is not depressed when moved
-			move_circle() # move the cursor
-			hm.UnhookMouse() # unhook the mouse
-			hm.HookKeyboard() # hook the keyboard
-        return True
+	if event.MessageName == "mouse left down":
+		t = threading.Thread(target=MouseEventThread, args=(1,))
+		t.start()
+	hm.HookKeyboard()
+	return True
 
 
 hm = pyHook.HookManager()
@@ -49,5 +69,7 @@ hm.MouseAll = OnMouseEvent
 hm.KeyDown  = OnKeyboardEvent
 # Hook the mouse
 hm.HookMouse()
+ # hook the keyboard
+
 # Wait for any events
 pythoncom.PumpMessages()
