@@ -38,7 +38,7 @@ def KeyEventThread2(i):
 
 			
 def OnKeyboardEvent(event):
-	if event.Key == "Media_Play_Pause":
+	if event.Key == "Escape":
 		t = threading.Thread(target=KeyEventThread1, args=(1,))
 		t.start()
 		sys.exit()
